@@ -37,7 +37,7 @@ public class TestCustomFile {
 			fInput.close();
 			
 			CustomFileUtil.initializeUtil();
-			CustomFileUtil.createFile(textBytes, imageBytes, "E:\\file.note");
+			CustomFileUtil.createFile(textBytes, imageBytes, "/home/linux/Documents/TempOut/file.note");
 			
 			
 		}catch(IOException e){
@@ -52,7 +52,6 @@ public class TestCustomFile {
 				ouput.write(readByte);
 			}
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

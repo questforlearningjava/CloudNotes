@@ -1,15 +1,12 @@
 package CustomBinary.CustomBinaryDev;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 
 public class CustomFileUtil {
@@ -76,14 +73,17 @@ public class CustomFileUtil {
 		return headerBytes;
 	}
 	
-	private static Note extractNote(String filePath){
+	public static Note extractNote(String filePath){
 		Note note = null;
 		ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
 		byte[] inputBytes;
-		List<byte[]> contentBytes = new ArrayList<byte[]>();
+		List<byte[]> contents = new LinkedList<byte[]>();
+		List<String> contentTypes = new LinkedList<String>();
+		String[] contentTypeArray = null;
 		
 		try{
 			FileInputStream inputStream = new FileInputStream(new File(filePath));
+			note = new Note();
 			int b;
 			while((b = inputStream.read()) != -1){
 				byteOutputStream.write(b);
@@ -94,11 +94,22 @@ public class CustomFileUtil {
 			int startPos = 0;
 			for(int i=0; i< inputBytes.length; i++){
 				if(inputBytes[i] == HEADER_SEPERATOR_SEQUENCE[0] && isHeaderSeperator(i, inputBytes)){
-					
+					byte[] headerBytes = new byte[(i-1) - startPos];
+					System.arraycopy(inputBytes, startPos, headerBytes, 0, (i-1) - startPos);
+					String headerString = new String(headerBytes, DEFAULT_ENCODING);
+					contentTypeArray = headerString.split(":");
+					startPos = i = (i + HEADER_SEPERATOR_SEQUENCE.length); 
 				}else if(inputBytes[i] == CONTENT_SEPERATOR_SEQUENCE[0] && isContentSeperator(i, inputBytes)){
-					
+						byte[] contentBytes = new byte[(i-1) - startPos];
+						System.arraycopy(inputBytes, startPos, contentBytes, 0, (i-1) - startPos);
+						int length = contentTypes.size();
+						contentTypes.add(contentTypeArray[length]);
+						contents.add(contentBytes);
+						startPos = i = (i + CONTENT_SEPERATOR_SEQUENCE.length);
 				}
 			}
+			note.setContents(contents);
+			note.setContentTypes(contentTypes);
 			
 		}catch(IOException e){
 			e.printStackTrace();
